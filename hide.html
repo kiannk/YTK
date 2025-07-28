@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>پنل مدیریت محصولات</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: Tahoma;
+      background: #f8f9fa;
+      padding: 20px;
+      direction: rtl;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 30px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+      margin: 5px;
+      padding: 7px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 200px;
+    }
+
+    button {
+      padding: 7px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #38b000;
+      color: white;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #2a8600;
+    }
+
+    .edit-btn {
+      background-color: #ff9100;
+    }
+
+    .edit-btn:hover {
+      background-color: #cc7700;
+    }
+
+    .delete-btn {
+      background-color: #d00000;
+    }
+
+    .delete-btn:hover {
+      background-color: #9b0000;
+    }
+
+    .product {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px auto;
+      max-width: 400px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+
+    img {
+      width: 80px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📦 مدیریت محصولات</h2>
+
+  <form onsubmit="addProduct(event)">
+    <input type="text" id="name" placeholder="نام محصول" required />
+    <input type="number" id="price" placeholder="قیمت" required />
+    <input type="text" id="image" placeholder="آدرس تصویر" required />
+    <button type="submit">➕ افزودن محصول</button>
+  </form>
+
+  <div id="product-list"></div>
+
+  <script>
+    // بارگذاری محصولات از localStorage
+    function loadProducts() {
+      const productList = document.getElementById("product-list");
+      productList.innerHTML = "";
+
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+
+      products.forEach((product, index) => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" />
+          <h4>${product.name}</h4>
+          <p>${product.price.toLocaleString()} تومان</p>
+          <button class="edit-btn" onclick="editProduct(${index})">✏️ ویرایش</button>
+          <button class="delete-btn" onclick="deleteProduct(${index})">❌ حذف</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    // افزودن محصول جدید
+    function addProduct(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const price = parseInt(document.getElementById("price").value);
+      const image = document.getElementById("image").value.trim();
+
+      if (!name || !price || !image) return;
+
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.push({ name, price, image });
+
+      localStorage.setItem("products", JSON.stringify(products));
+
+      e.target.reset();
+      loadProducts();
+    }
+
+    // حذف محصول
+    function deleteProduct(index) {
+      const confirmDelete = confirm("آیا مطمئنی که می‌خواهی حذف کنی؟");
+      if (!confirmDelete) return;
+
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.splice(index, 1);
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts();
+    }
+
+    // ویرایش محصول
+    function editProduct(index) {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      const product = products[index];
+
+      const newName = prompt("نام جدید:", product.name);
+      const newPrice = prompt("قیمت جدید:", product.price);
+      const newImage = prompt("لینک جدید عکس:", product.image);
+
+      if (!newName || !newPrice || !newImage) return;
+
+      products[index] = {
+        name: newName,
+        price: parseInt(newPrice),
+        image: newImage,
+      };
+
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts();
+    }
+
+    // اجرای اولیه
+    window.onload = loadProducts;
+  </script>
+</body>
+</html>
